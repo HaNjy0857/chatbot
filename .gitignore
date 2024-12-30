@@ -1,0 +1,16 @@
+# 前端相關
+frontend/node_modules/
+frontend/node_modules/.cache/
+frontend/build/
+frontend/dist/
+
+# 後端相關
+backend/node_modules/
+backend/dist/
+
+# 通用忽略
+.env
+.env.local
+.DS_Store
+*.log
+node_modules/
