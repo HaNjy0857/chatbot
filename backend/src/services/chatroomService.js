@@ -34,7 +34,6 @@ exports.createRoom = async (roomData) => {
 exports.getRooms = async () => {
   try {
     const rooms = await ChatRoom.find({ type: "public" }).lean();
-    console.log(rooms);
     // 格式化返回數據
     const formattedRooms = rooms.map((room) => ({
       name: room.name,

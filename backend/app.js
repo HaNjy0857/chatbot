@@ -20,7 +20,7 @@ const server = http.createServer(app);
 // 使用相同的 CORS 配置
 const corsOptions = {
   origin: "http://localhost:3000", // 前端的 URL
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
@@ -32,6 +32,15 @@ app.use(express.urlencoded({ extended: true }));
 // 日誌中間件
 app.use((req, res, next) => {
   logger.info(`收到 ${req.method} 請求: ${req.url}`);
+  next();
+});
+
+// 在路由之前添加日誌中間件
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log("Headers:", req.headers); // 查看請求頭
+  console.log("Body:", req.body); // 查看請求體
+  console.log("User:", req.user); // 如果有的話，查看用戶信息
   next();
 });
 

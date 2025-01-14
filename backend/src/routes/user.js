@@ -1,14 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const { authenticateToken, checkRole } = require("../middleware/auth");
+const { authenticateToken, isAdmin } = require("../middleware/auth");
 
-router.get(
-  "/admin",
+router.put(
+  "/upgrade/:userId",
   authenticateToken,
-  checkRole("admin"),
-  userController.getAdminPage
+  userController.upgradeToAdmin
 );
-router.get("/user", authenticateToken, userController.getUserPage);
+
+router.put(
+  "/downgrade/:userId",
+  authenticateToken,
+  isAdmin,
+  userController.downgradeToUser
+);
 
 module.exports = router;

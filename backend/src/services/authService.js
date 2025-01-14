@@ -53,7 +53,11 @@ exports.login = async (email, password) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
       jwtConfig.secret,
       { expiresIn: jwtConfig.expiresIn }
     );
@@ -71,10 +75,23 @@ exports.login = async (email, password) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       },
     };
   } catch (error) {
     logger.error("登入過程中發生錯誤", { error: error.message });
     throw error;
   }
+};
+
+exports.generateToken = (user) => {
+  return jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+    },
+    jwtConfig.secret,
+    { expiresIn: jwtConfig.expiresIn }
+  );
 };

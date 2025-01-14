@@ -18,7 +18,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { AuthContext } from "../contexts/AuthContext";
 
 const Lobby = () => {
-  const { isAuthenticated, logout, user } = useContext(AuthContext);
+  const { isAuthenticated, logout, user, login } = useContext(AuthContext);
   const [socket, setSocket] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [newRoomName, setNewRoomName] = useState("");
@@ -101,18 +101,100 @@ const Lobby = () => {
     }
   };
 
+  const handleUpgradeToAdmin = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/users/upgrade/${user.id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // 使用 AuthContext 的 login 方法更新 token 和用戶資訊
+          login(result.token, result.user);
+          alert("升級成功！");
+        } else {
+          alert(result.message || "升級失敗，請稍後再試");
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "升級失敗，請稍後再試");
+      }
+    } catch (error) {
+      console.error("Error upgrading user:", error);
+      alert("升級過程中發生錯誤");
+    }
+  };
+
+  const handleDowngradeToUser = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/users/downgrade/${user.id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // 使用 AuthContext 的 login 方法更新 token 和用戶資訊
+          login(result.token, result.user);
+          alert("降級成功！");
+        } else {
+          alert(result.message || "降級失敗，請稍後再試");
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "降級失敗，請稍後再試");
+      }
+    } catch (error) {
+      console.error("Error downgrading user:", error);
+      alert("降級過程中發生錯誤");
+    }
+  };
+
   return (
     <Box>
       <AppBar position="static" sx={{ mb: 4 }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Typography variant="h6">聊天室大廳</Typography>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            startIcon={<LogoutIcon />}
-          >
-            登出
-          </Button>
+          <Box>
+            {user && (
+              <Button
+                color="error"
+                variant="contained"
+                onClick={
+                  user.role === "admin"
+                    ? handleDowngradeToUser
+                    : handleUpgradeToAdmin
+                }
+                sx={{ mr: 2 }}
+              >
+                {user.role === "admin" ? "我不想當平偉了" : "我想大聲"}
+              </Button>
+            )}
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+              startIcon={<LogoutIcon />}
+            >
+              登出
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
 
