@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import {
@@ -22,30 +22,37 @@ const Lobby = () => {
   const [socket, setSocket] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [newRoomName, setNewRoomName] = useState("");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const establishSocketConnection = useCallback(() => {
     if (socket) {
-      socket.close();
-    }
-    logout();
-    navigate("/");
-  };
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
+      console.log("Closing existing socket connection");
+      socket.disconnect();
     }
 
+    console.log("Establishing new socket connection");
     const newSocket = io("http://localhost:5000", {
-      withCredentials: true,
+      auth: {
+        token: localStorage.getItem("authToken"),
+      },
       transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     newSocket.on("connect", () => {
-      console.log("Connected to lobby server");
+      console.log("Socket connected successfully");
       newSocket.emit("getRooms");
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+    });
+
+    newSocket.on("disconnect", (reason) => {
+      console.log("Socket disconnected:", reason);
     });
 
     newSocket.on("roomList", (roomList) => {
@@ -63,11 +70,32 @@ const Lobby = () => {
     });
 
     setSocket(newSocket);
+    return newSocket;
+  }, []);
+
+  const handleLogout = () => {
+    if (socket) {
+      socket.disconnect();
+    }
+    logout();
+    navigate("/");
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    const newSocket = establishSocketConnection();
 
     return () => {
-      if (newSocket) newSocket.close();
+      if (newSocket) {
+        console.log("Cleaning up socket connection");
+        newSocket.disconnect();
+      }
     };
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, establishSocketConnection]);
 
   const createRoom = () => {
     if (newRoomName && socket) {
@@ -118,19 +146,13 @@ const Lobby = () => {
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
-          // 使用 AuthContext 的 login 方法更新 token 和用戶資訊
           login(result.token, result.user);
+          establishSocketConnection();
           alert("升級成功！");
-        } else {
-          alert(result.message || "升級失敗，請稍後再試");
         }
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || "升級失敗，請稍後再試");
       }
     } catch (error) {
       console.error("Error upgrading user:", error);
-      alert("升級過程中發生錯誤");
     }
   };
 
@@ -151,19 +173,25 @@ const Lobby = () => {
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
-          // 使用 AuthContext 的 login 方法更新 token 和用戶資訊
           login(result.token, result.user);
+          establishSocketConnection();
           alert("降級成功！");
-        } else {
-          alert(result.message || "降級失敗，請稍後再試");
         }
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || "降級失敗，請稍後再試");
       }
     } catch (error) {
       console.error("Error downgrading user:", error);
-      alert("降級過程中發生錯誤");
+    }
+  };
+
+  const handleBroadcast = () => {
+    if (socket && broadcastMessage.trim()) {
+      socket.emit("broadcast", {
+        message: broadcastMessage,
+        sender: user.id,
+        role: user.role,
+        username: user.username,
+      });
+      setBroadcastMessage(""); // 清空輸入框
     }
   };
 
@@ -222,6 +250,34 @@ const Lobby = () => {
                   創建房間
                 </Button>
               </Grid>
+
+              {user?.role === "admin" && (
+                <>
+                  <Grid item xs={8}>
+                    <TextField
+                      fullWidth
+                      value={broadcastMessage}
+                      onChange={(e) => setBroadcastMessage(e.target.value)}
+                      placeholder="輸入廣播訊息"
+                      variant="outlined"
+                      size="small"
+                      sx={{ mt: 2 }}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={handleBroadcast}
+                      disabled={!broadcastMessage.trim() || !socket}
+                      color="secondary"
+                      sx={{ mt: 2 }}
+                    >
+                      廣播訊息
+                    </Button>
+                  </Grid>
+                </>
+              )}
             </Grid>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6" gutterBottom>

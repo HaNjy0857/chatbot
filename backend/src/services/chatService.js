@@ -1,13 +1,19 @@
 const Message = require("../models/message");
 const logger = require("../utils/logger");
 
-exports.saveMessage = async (roomName, content, userId, username) => {
+exports.saveMessage = async (
+  roomName,
+  content,
+  userId,
+  username,
+  type = "text"
+) => {
   try {
     const message = new Message({
       room: String(roomName),
       user: String(userId),
       username: String(username),
-      content: "text",
+      content: type,
       text: content,
     });
 
@@ -22,6 +28,7 @@ exports.saveMessage = async (roomName, content, userId, username) => {
         username: savedMessage.username,
         timestamp: savedMessage.createdAt,
         room: savedMessage.room,
+        type: savedMessage.content,
       },
     };
 

@@ -115,6 +115,32 @@ const ChatRoom = () => {
     }
   };
 
+  const renderMessage = (message, index) => {
+    const isBroadcast = message.type === "broadcast";
+
+    return (
+      <ListItem key={index}>
+        <ListItemText
+          primary={
+            <Typography
+              component="span"
+              sx={{
+                color: isBroadcast ? "error.main" : "inherit",
+                fontWeight: isBroadcast ? "bold" : "normal",
+              }}
+            >
+              {isBroadcast ? "【系統廣播】" : ""}
+              {message.text}
+            </Typography>
+          }
+          secondary={`${message.username} - ${new Date(
+            message.timestamp
+          ).toLocaleString()}`}
+        />
+      </ListItem>
+    );
+  };
+
   return (
     <Box sx={{ maxWidth: 600, margin: "auto", mt: 4 }}>
       {isAuthenticated ? (
@@ -130,16 +156,7 @@ const ChatRoom = () => {
             sx={{ height: 300, overflow: "auto", mb: 2, p: 2 }}
           >
             <List>
-              {messages.map((message, index) => (
-                <ListItem key={index}>
-                  <ListItemText
-                    primary={message.text}
-                    secondary={`${message.username} - ${new Date(
-                      message.timestamp
-                    ).toLocaleString()}`}
-                  />
-                </ListItem>
-              ))}
+              {messages.map((message, index) => renderMessage(message, index))}
               <div ref={messagesEndRef} />
             </List>
           </Paper>

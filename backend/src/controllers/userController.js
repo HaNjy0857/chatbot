@@ -3,7 +3,6 @@ const userService = require("../services/userService");
 // 新增升級用戶控制器
 exports.upgradeToAdmin = async (req, res) => {
   try {
-    console.log("升級用戶控制器", req);
     const { userId } = req.params;
     const result = await userService.upgradeToAdmin(userId);
 

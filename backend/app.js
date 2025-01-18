@@ -36,13 +36,13 @@ app.use((req, res, next) => {
 });
 
 // 在路由之前添加日誌中間件
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log("Headers:", req.headers); // 查看請求頭
-  console.log("Body:", req.body); // 查看請求體
-  console.log("User:", req.user); // 如果有的話，查看用戶信息
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+//   console.log("Headers:", req.headers); // 查看請求頭
+//   console.log("Body:", req.body); // 查看請求體
+//   console.log("User:", req.user); // 如果有的話，查看用戶信息
+//   next();
+// });
 
 // 路由
 app.use("/api/auth", authRoutes);

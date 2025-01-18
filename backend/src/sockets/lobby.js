@@ -46,5 +46,55 @@ module.exports = (io) => {
         socket.emit("error", "獲取房間列表失敗");
       }
     });
+
+    // 處理廣播消息
+    socket.on("broadcast", async (data) => {
+      try {
+        console.log(data);
+        // 驗證發送者是否為管理員
+        if (data.role !== "admin") {
+          return socket.emit("error", {
+            message: "只有管理員可以發送廣播訊息",
+          });
+        }
+
+        // 獲取所有房間
+        const result = await chatroomService.getRooms();
+        if (!result.success) {
+          return socket.emit("error", {
+            message: "獲取房間列表失敗",
+          });
+        }
+
+        // 為每個房間保存廣播消息
+        for (const room of result.data) {
+          await chatService.saveMessage(
+            room.name,
+            data.message,
+            data.sender,
+            data.username,
+            "broadcast" // 消息類型
+          );
+        }
+
+        // 向所有客戶端廣播消息
+        io.emit("newMessage", {
+          type: "broadcast",
+          content: data.message,
+          sender: "系統廣播",
+          timestamp: new Date(),
+        });
+
+        // 通知發送者廣播成功
+        socket.emit("broadcastSuccess", {
+          message: "廣播訊息已發送",
+        });
+      } catch (error) {
+        console.error("廣播訊息錯誤:", error);
+        socket.emit("error", {
+          message: "廣播訊息發送失敗",
+        });
+      }
+    });
   });
 };

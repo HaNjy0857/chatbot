@@ -1,37 +1,36 @@
-version: "3"
+version: "3.8"
 
 services:
-  app:
-    build: .
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=your_jwt_secret
+      - MONGODB_URI=mongodb://mongo:27017/chatdb
     depends_on:
       - mongo
-      - mysql
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/chatapp
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=rootpassword
-      - MYSQL_DATABASE=chatapp
 
   mongo:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
-
-  mysql:
-    image: mysql:latest
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=chatapp
-    volumes:
-      - mysql_data:/var/lib/mysql
+      - mongodb_data:/data/db
 
 volumes:
-  mongo_data:
-  mysql_data:
+  mongodb_data:
