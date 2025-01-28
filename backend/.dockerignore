@@ -1,0 +1,34 @@
+# 依賴
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 環境檔案
+.env
+.env.*
+
+# 開發用檔案
+.git
+.gitignore
+README.md
+Dockerfile
+docker-compose.yml
+
+# 日誌檔案
+logs
+*.log
+
+# IDE 相關
+.idea
+.vscode
+*.swp
+*.swo
+
+# 測試檔案
+coverage
+.nyc_output
+test
+
+# 其他
+.DS_Store 

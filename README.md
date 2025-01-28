@@ -152,11 +152,6 @@ docker-compose up -d
 - Redis >= 6.0
 - Docker & Docker Compose (選用)
 
-## 開發團隊
-
-- 後端開發：[您的名字]
-- 前端開發：[前端開發者]
-
 ## 授權
 
 MIT License
