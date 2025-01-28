@@ -28,32 +28,10 @@
 
 - **Node.js & Express**: RESTful API 實現
 - **Socket.IO**: 即時通訊功能
-- **MySQL**: 主要資料儲存
-- **Redis**: 快取層和 Session 管理
+- **MySQL**: 使用者資料儲存
+- **MongoDB**: 聊天訊息儲存
 - **JWT**: 使用者認證
 - **Docker**: 容器化部署
-
-### 資料庫設計
-
-```
-Users
-  ├── id
-  ├── username
-  ├── password (hashed)
-  └── role
-
-Rooms
-  ├── id
-  ├── name
-  └── created_at
-
-Messages
-  ├── id
-  ├── content
-  ├── user_id
-  ├── room_id
-  └── created_at
-```
 
 ## API 文件
 
@@ -98,59 +76,6 @@ roomList     - 房間列表更新
 userJoined   - 用戶加入通知
 userLeft     - 用戶離開通知
 ```
-
-## 安裝部署
-
-1. 安裝依賴：
-
-```bash
-npm install
-```
-
-2. 環境設置：
-
-```bash
-# 複製環境變數範本
-cp .env.example .env
-
-# 設置必要環境變數
-JWT_SECRET=your_jwt_secret
-DB_HOST=localhost
-DB_USER=root
-DB_PASS=password
-DB_NAME=chatdb
-```
-
-3. 資料庫遷移：
-
-```bash
-npm run migrate
-```
-
-4. 啟動服務：
-
-```bash
-# 開發模式
-npm run dev
-
-# 生產模式
-npm start
-```
-
-## Docker 部署
-
-使用 Docker Compose 一鍵部署：
-
-```bash
-docker-compose up -d
-```
-
-## 系統要求
-
-- Node.js >= 14
-- MySQL >= 5.7
-- Redis >= 6.0
-- Docker & Docker Compose (選用)
 
 ## 授權
 
