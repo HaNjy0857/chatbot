@@ -1,6 +1,6 @@
 # 即時聊天系統
 
-一個基於 Node.js 的即時聊天系統，整合了 RESTful API、WebSocket、權限管理等後端核心功能。
+一個基於 Node.js 的即時聊天系統，整合了 RESTful API、Socket.IO、權限管理等後端核心功能。
 
 ## 核心功能
 
